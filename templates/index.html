@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.D.E.L</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Logo -->
+        <header class="header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="A.D.E.L Logo" class="logo">
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Form Section -->
+            <section class="form-section glassmorphic">
+                <!-- Form for Updating Number of Entries -->
+                <form action="/" method="POST">
+                    <div class="form-group">
+                        <label for="num_entries">сколько инструментов:</label>
+                        <input type="number" id="num_entries" name="num_entries" value="{{ num_entries }}" min="1" required>
+                    </div>
+                    <button type="submit" name="action" value="update" class="btn btn-primary">Обновление инструментов</button>
+                </form>
+
+                <!-- Form for Entries and Calculation -->
+                {% if num_entries > 0 %}
+                <form action="/" method="POST">
+                    <!-- Hidden input to pass num_entries to the calculate action -->
+                    <input type="hidden" name="num_entries" value="{{ num_entries }}">
+                    <div id="entries" class="entries-grid">
+                        {% for i in range(num_entries) %}
+                        <div class="entry">
+                            <h3>инструмент {{ i + 1 }}</h3>
+                            <div class="form-group">
+                                <label for="budget_{{ i }}">Рекламный бюджет c НДС:</label>
+                                <input type="number" step="any" id="budget_{{ i }}" name="budget_{{ i }}" value="{{ request.form['budget_' ~ i] if request.form else '' }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clicks_{{ i }}">Прогнозируемое количество кликов:</label>
+                                <input type="number" step="any" id="clicks_{{ i }}" name="clicks_{{ i }}" value="{{ request.form['clicks_' ~ i] if request.form else '' }}" required>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" name="action" value="calculate" class="btn btn-primary">вычислить</button>
+                </form>
+                {% endif %}
+
+                <!-- Error Message -->
+                {% if error %}
+                <p class="error">{{ error }}</p>
+                {% endif %}
+            </section>
+
+            <!-- Results Section -->
+            {% if results %}
+            <section class="results-section fade-in">
+                <h2>результат</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>инструмент</th>
+                                <th>CPC без НДС</th>
+                                <th>Рекл. бюджет без НДС</th>
+                                <th>Рекл. бюджет с НДС</th>
+                                <th>Прогноз кликов</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.row }}</td>
+                                <td>{{ result.cpc_no_vat }}</td>
+                                <td>{{ result.budget_no_vat }}</td>
+                                <td>{{ result.budget_with_vat }}</td>
+                                <td>{{ result.clicks }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary -->
+                <div class="summary">
+                    <h2>Summary (Row 12)</h2>
+                    <p>C12 (Рекламный бюджет без НДС): {{ summary.total_budget_no_vat }}</p>
+                    <p>D12 (Рекламный бюджет c НДС): {{ summary.total_budget_with_vat }}</p>
+                    <p>E12 (кликов): {{ summary.total_clicks }}</p>
+                </div>
+            </section>
+            {% endif %}
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
