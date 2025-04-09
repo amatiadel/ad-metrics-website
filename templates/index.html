@@ -35,14 +35,22 @@
                     <div id="entries" class="entries-grid">
                         {% for i in range(num_entries) %}
                         <div class="entry">
-                            <h3>инструмент {{ i + 1 }}</h3>
+                            <div class="entry-header">
+                                <h3>инструмент {{ i + 1 }}</h3>
+                                {% if i < num_entries - 1 and num_entries > 1 %}
+                                <button type="submit" name="action" value="delete" class="btn btn-delete" formnovalidate>
+                                    <input type="hidden" name="delete_index" value="{{ i }}">
+                                    &times;
+                                </button>
+                                {% endif %}
+                            </div>
                             <div class="form-group">
                                 <label for="budget_{{ i }}">Рекламный бюджет c НДС:</label>
-                                <input type="number" step="any" id="budget_{{ i }}" name="budget_{{ i }}" value="{{ request.form['budget_' ~ i] if request.form else '' }}" required>
+                                <input type="number" step="any" id="budget_{{ i }}" name="budget_{{ i }}" value="{{ preserved_values[i]['budget'] if preserved_values and i in preserved_values else (request.form['budget_' ~ i] if request.form else '') }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="clicks_{{ i }}">Прогнозируемое количество кликов:</label>
-                                <input type="number" step="any" id="clicks_{{ i }}" name="clicks_{{ i }}" value="{{ request.form['clicks_' ~ i] if request.form else '' }}" required>
+                                <input type="number" step="any" id="clicks_{{ i }}" name="clicks_{{ i }}" value="{{ preserved_values[i]['clicks'] if preserved_values and i in preserved_values else (request.form['clicks_' ~ i] if request.form else '') }}" required>
                             </div>
                         </div>
                         {% endfor %}
